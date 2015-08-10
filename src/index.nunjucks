@@ -1,0 +1,122 @@
+{% extends '_layouts/base.nunjucks' %}
+
+{% block headscripts %}
+  <script src="{{config.baseUrl}}scripts/depend.js"></script>
+  <script>
+    $D.init({
+      aliases: {
+        'raphael': 'raphael.js',
+        'g.raphael': 'g.raphael.js',
+        'scoreworm': "scoreworm.js",
+        'match-centre': 'match-centre.js',
+        'player-ratings': 'player-ratings.js',
+        'colorbox': 'colorbox.js',
+        'jquery': 'jquery.js',
+        'underscore': 'underscore.js'
+      },
+      headOnly: [
+        'underscore',
+        'jquery'
+      ],
+      deps: {
+        'scoreworm': ['raphael', 'g.raphael'],
+        'match-centre': ['scoreworm', 'jscrollpane', 'jquery', 'underscore'],
+        'player-ratings': ['raphael', 'g.raphael', 'colorbox']
+      }
+    });
+  </script>
+  <script>
+    $D.addDependency('head', 'jquery');
+    $D.addDependency('head', 'underscore');
+  </script>
+  <script>
+    console.log(
+      'HEAD script tags:\n' +
+      $D.renderAsScriptTags($D.orderedJsDependenciesOf('head'))
+    );
+  </script>
+{% endblock %}
+
+{% block pagewrapper %}
+  <h2>depend.js example</h2>
+
+  <div class="p-player-ratings">
+    <h3>Imagine that a module called "player-ratings" gets rendered here</h3>
+    <script style="display: block;">$D.addDependency('body', 'player-ratings');</script>
+  </div>
+
+  <p><strong>Open up the console</strong> (<kbd>Command+Alt+I</kbd> on OS X
+    or <kbd>F12</kbd> on Windows) to see the <code>&lt;script&gt;</code> tags
+    which would be output to the <code>&lt;head&gt;</code> and
+    <code>&lt;body&gt;</code> of this document.
+  </p>
+
+  <p>Now <strong>open <code>src/index.nunjucks</code></strong> to see how
+    dependencies are declared.</p>
+
+  <p>(You may also wish to open <code>src/_layouts/base.nunjucks</code> to
+    see the whole HTML structure.)</p>
+
+  <div class="p-match-centre">
+    <h3>Imagine another module called "match-centre" gets rendered here</h3>
+    <script style="display: block;">$D.addDependency('body', 'match-centre');</script>
+  </div>
+
+  <h3>How it works:</h3>
+
+  <ol>
+    <li>Importantly, a call to <code>$D.init()</code> is made before anything
+      else happens, with a <strong>dependency graph</strong> passed in, via
+      the <code>deps</code> config. Also, "friendly" names are mapped to real
+      JavaScript filenames using the <strong>aliases map</strong>, passed in via
+      the <code>aliases</code> config.</li>
+
+    <li>The dependency graph you pass in is the stuff that replaces module
+      wrappers. The dependency list for the page begins to come into shape when
+      you first make a call such as
+      <code>$D.addDependency('body', 'my-module');</code>, where
+      <code>'my-module'</code> matches a dependency name in the dependency graph
+      you passed in earlier.</li>
+
+    <li>After queuing up a bunch of calls to
+      <code>$D.addDependency('body', 'some-other-module')</code>, it's
+      time to call
+      <code>$D.renderAsScriptTags($D.orderedJsDependenciesOf('body'))</code>,
+      which a) creates an ordered list of dependencies required to completely
+      load <code>'body'</code> and b) renders it as a bunch of blocking script
+      tags.</li>
+  </ol>
+
+  <p>NOTE: depend.js does <em>not</em> support parallel requests. However, if
+    you are already using bundling then the adverse effect on your page load
+    time should be negligible.</p>
+
+  <h3>How this page separates &lt;head&gt; and &lt;body&gt; dependencies:</h3>
+
+  <p>This example makes the assumption that some libraries absolutely must
+    be included in the <code>&lt;head&gt;</code> tag, using the special
+    <code>excluding</code> option on <code>$D.orderedJsDependenciesOf()</code>.
+    To leave out any dependencies which would have been pulled in by a prior
+    call to <code>$D.orderedJsDependenciesOf('head');</code>, this page uses
+    the <code>excluding</code> option like this:</p>
+
+  <blockquote><code>
+    $D.renderAsScriptTags($D.orderedJsDependenciesOf('body', {excluding: 'head'}))
+  </code></blockquote>
+
+  <p>Dependencies are conveniently declared as they are used. BUT they're only
+    actually ordered, de-duplicated and rendered at very specific points in
+    the document &mdash; in this example, at the end of the head and body
+    elements.</p>
+
+  <script>
+    console.log(
+      'BODY script tags:\n' +
+      $D.renderAsScriptTags($D.orderedJsDependenciesOf('body', {excluding: 'head'}))
+    );
+  </script>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

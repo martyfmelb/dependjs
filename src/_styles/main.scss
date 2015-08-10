@@ -1,0 +1,54 @@
+// Normalize Styles
+@import 'node_modules/normalize.css/normalize';
+
+// Styling on warning for users on IE7 or below
+.browsehappy {
+  text-align: center;
+  margin: 0;
+  background: #FFF8E2;
+  color: #000000;
+  padding: 0.5em 0;
+}
+
+.page-wrapper {
+  padding: 20px;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+%module {
+  border: 1px solid #C0C0C0;
+  padding: 10px;
+
+  h3 {
+    font-weight: bold;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin: -10px;
+    padding: 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  h3:first-child { margin-top: -10px; }
+  h3:last-child { margin-bottom: -10px; }
+}
+
+.p-player-ratings,
+.p-match-centre {
+  @extend %module;
+}
+
+script {
+  font-family: monospace;
+  &:before, &:after {
+    color: #A0A0A0;
+  }
+  &:before { content: '<script>'; }
+  &:after { content: '</script>'; }
+}
+
+ol {
+  li + li {
+    margin-top: 1em;
+  }
+}
